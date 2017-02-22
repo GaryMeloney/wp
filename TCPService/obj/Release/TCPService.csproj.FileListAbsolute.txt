@@ -1,0 +1,6 @@
+C:\Users\miked\Documents\GitHub\wp\TCPService\bin\Release\TCPService.exe
+C:\Users\miked\Documents\GitHub\wp\TCPService\obj\Release\TCPService.TCPInstaller.resources
+C:\Users\miked\Documents\GitHub\wp\TCPService\obj\Release\TCPService.TCPService.resources
+C:\Users\miked\Documents\GitHub\wp\TCPService\obj\Release\TCPService.csproj.GenerateResource.Cache
+C:\Users\miked\Documents\GitHub\wp\TCPService\obj\Release\TCPService.exe
+C:\Users\miked\Documents\GitHub\wp\TCPService\obj\Release\TCPService.csprojResolveAssemblyReference.cache

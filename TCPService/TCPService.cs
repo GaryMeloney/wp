@@ -3,7 +3,21 @@ using System.Collections;
 using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
+using System.IO;
 using System.ServiceProcess;
+
+/*
+ * Reference this link for original source:
+ * https://www.codeproject.com/Articles/5733/A-TCP-IP-Server-written-in-C
+ * 
+ * Helpful commands to execute *AS ADMINISTSTATOR* from the Visual Studio Developer Command Prompt
+ * 
+ * sc create TCPService binpath= "C:\Users\miked\Documents\GitHub\wp\TCPService\bin\Release\TCPService.exe" displayname= "WaterPigeonServer" depend= Tcpip start= auto 
+ * sc delete TCPService
+ * sc start TCPService -d -s
+ * sc stop TCPService
+ * 
+ */
 
 namespace TCPService
 {
@@ -20,7 +34,7 @@ namespace TCPService
 		/// Required designer variable.
 		/// </summary>
 		private System.ComponentModel.Container components = null;
-		private TCPServer server=null;
+		private TCPServer server = null;
 
 		public TCPService()
 		{
@@ -29,9 +43,9 @@ namespace TCPService
 		}
 
 		// The main entry point for the process
-		static void Main()
+		static void Main(string[] args)
 		{
-			System.ServiceProcess.ServiceBase[] ServicesToRun;
+            System.ServiceProcess.ServiceBase[] ServicesToRun;
 	
 			// More than one user Service may run within the same process. To add
 			// another service to this process, change the following line to
@@ -74,9 +88,22 @@ namespace TCPService
 		/// </summary>
 		protected override void OnStart(string[] args)
 		{
-			// Create the Server Object ans Start it.
-			server = new TCPServer();
-			server.StartServer();
+            WpLog.Open();
+            
+            //int count = 0;
+            foreach (string s in args)
+            {
+                if (s.Equals("-d")) WpLog.EnableDebug = true;
+                if (s.Equals("-s")) WpLog.EnableSession = true;
+
+                //WpLog.LogD(String.Format("arg {0} {1}", count++, s));
+            }
+
+            WpLog.LogD("Service Started");
+
+            // Create the Server Object and Start it.
+            server = new TCPServer();
+            server.StartServer();
 		}
  
 		/// <summary>
@@ -84,9 +111,12 @@ namespace TCPService
 		/// </summary>
 		protected override void OnStop()
 		{
-			// Stop the Server. Release it.
-			server.StopServer();
-			server=null;
-		}
-	}
+            WpLog.LogD("Service Stopped");
+            WpLog.Close();
+
+            // Stop the Server. Release it.
+            server.StopServer();
+			server = null;
+        }
+    }
 }

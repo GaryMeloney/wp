@@ -1,0 +1,5 @@
+C:\Users\miked\Documents\GitHub\wp\TCPClient\bin\Debug\TCPClient.exe
+C:\Users\miked\Documents\GitHub\wp\TCPClient\bin\Debug\TCPClient.pdb
+C:\Users\miked\Documents\GitHub\wp\TCPClient\obj\Debug\TCPClient.exe
+C:\Users\miked\Documents\GitHub\wp\TCPClient\obj\Debug\TCPClient.pdb
+C:\Users\miked\Documents\GitHub\wp\TCPClient\obj\Debug\TCPClient.csprojResolveAssemblyReference.cache

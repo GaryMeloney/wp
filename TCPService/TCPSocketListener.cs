@@ -86,16 +86,21 @@ namespace TCPService
 				try
 				{
 					size = m_clientSocket.Receive(byteBuffer);
+                    if (size == 0) break;
 					m_currentReceiveDateTime=DateTime.Now;
 					ParseReceiveBuffer(byteBuffer, size);
 				}
-				catch (SocketException se)
+				catch (SocketException)
 				{
 					m_stopClient=true;
 					m_markedForDeletion=true;
 				}
 			}
-			t.Change(Timeout.Infinite, Timeout.Infinite);
+            WpLog.LogS(String.Format("{0}:connection dropped by client", m_clientSocket.RemoteEndPoint));
+
+            m_clientSocket.Close();
+
+            t.Change(Timeout.Infinite, Timeout.Infinite);
 			t=null;
 		}
 
@@ -133,19 +138,28 @@ namespace TCPService
 			return m_markedForDeletion;
 		}
 
-		/// <summary>
-		/// This method parses data that is sent by a client using TCP/IP.
-		/// As per the "Protocol" between client and this Listener, client 
-		/// sends each line of information by appending "CRLF" (Carriage Return
-		/// and Line Feed). But since the data is transmitted from client to 
-		/// here by TCP/IP protocol, it is not guarenteed that each line that
-		/// arrives ends with a "CRLF". So the job of this method is to make a
-		/// complete line of information that ends with "CRLF" from the data
-		/// that comes from the client and get it processed.
-		/// </summary>
-		/// <param name="byteBuffer"></param>
-		/// <param name="size"></param>
-		private void ParseReceiveBuffer(Byte [] byteBuffer, int size)
+        private void ParseReceiveBuffer(Byte[] byteBuffer, int size)
+        {
+            string[] data = Encoding.ASCII.GetString(byteBuffer, 0, size).Split(':');
+            string meterID = data[0];
+            string readTime = data[1];
+            string meterValue = data[2];
+            WpLog.LogS(String.Format("{0}:{1}:{2}:{3}", m_clientSocket.RemoteEndPoint, meterID, readTime, meterValue));
+        }
+
+        /// <summary>
+        /// This method parses data that is sent by a client using TCP/IP.
+        /// As per the "Protocol" between client and this Listener, client 
+        /// sends each line of information by appending "CRLF" (Carriage Return
+        /// and Line Feed). But since the data is transmitted from client to 
+        /// here by TCP/IP protocol, it is not guarenteed that each line that
+        /// arrives ends with a "CRLF". So the job of this method is to make a
+        /// complete line of information that ends with "CRLF" from the data
+        /// that comes from the client and get it processed.
+        /// </summary>
+        /// <param name="byteBuffer"></param>
+        /// <param name="size"></param>
+        private void ParseReceiveBufferOrig(Byte [] byteBuffer, int size)
 		{
 			string data = Encoding.ASCII.GetString(byteBuffer,0, size);
 			int lineEndIndex = 0;
@@ -213,7 +227,7 @@ namespace TCPService
 						{
 							m_cfgFile = new StreamWriter(DEFAULT_FILE_STORE_LOC+oneLine.Substring(0,length-2));
 						}
-						catch(Exception e)
+						catch(Exception)
 						{
 							m_processState=STATE.FILE_CLOSED;
 							length=-1;
@@ -224,7 +238,7 @@ namespace TCPService
 					{
 						m_clientSocket.Send(BitConverter.GetBytes(length));
 					}
-					catch(SocketException se)
+					catch(SocketException)
 					{
 						m_processState=STATE.FILE_CLOSED;
 					}
@@ -241,7 +255,7 @@ namespace TCPService
 							m_cfgFile=null;
 							m_clientSocket.Send(BitConverter.GetBytes(m_totalClientDataSize));
 						}
-						catch(SocketException se)
+						catch(SocketException)
 						{
 						}
 						m_processState=STATE.FILE_CLOSED;

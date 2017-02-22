@@ -34,10 +34,11 @@ namespace TCPService
 		private Thread m_serverThread = null;
 		private Thread m_purgingThread = null;
 		private ArrayList m_socketListenersList = null;
-		/// <summary>
-		/// Constructors.
-		/// </summary>
-		public TCPServer()
+
+        /// <summary>
+        /// Constructors.
+        /// </summary>
+        public TCPServer()
 		{
 			Init(DEFAULT_IP_END_POINT);
 		}
@@ -69,12 +70,12 @@ namespace TCPService
 			StopServer();
 		}
 
-		/// <summary>
-		/// Init method that create a server (TCP Listener) Object based on the
-		/// IP Address and Port information that is passed in.
-		/// </summary>
-		/// <param name="ipNport"></param>
-		private void Init(IPEndPoint ipNport)
+        /// <summary>
+        /// Init method that create a server (TCP Listener) Object based on the
+        /// IP Address and Port information that is passed in.
+        /// </summary>
+        /// <param name="ipNport"></param>
+        private void Init(IPEndPoint ipNport)
 		{
 			try
 			{
@@ -86,16 +87,16 @@ namespace TCPService
 						TCPSocketListener.DEFAULT_FILE_STORE_LOC);
 				}
 			}
-			catch(Exception e)
+			catch(Exception)
 			{
 				m_server=null;
 			}
 		}
 
-		/// <summary>
-		/// Method that starts TCP/IP Server.
-		/// </summary>
-		public void StartServer()
+        /// <summary>
+        /// Method that starts TCP/IP Server.
+        /// </summary>
+        public void StartServer()
 		{
 			if (m_server!=null)
 			{
@@ -191,14 +192,15 @@ namespace TCPService
 					// Wait for any client requests and if there is any 
 					// request from any client accept it (Wait indefinitely).
 					clientSocket = m_server.AcceptSocket();
+                    WpLog.LogS(String.Format("{0}:connection made", clientSocket.RemoteEndPoint));
 
 					// Create a SocketListener object for the client.
 					socketListener = new TCPSocketListener(clientSocket);
-
-					// Add the socket listener to an array list in a thread 
-					// safe fashon.
-					//Monitor.Enter(m_socketListenersList);
-					lock(m_socketListenersList)
+                    
+                    // Add the socket listener to an array list in a thread 
+                    // safe fashion.
+                    //Monitor.Enter(m_socketListenersList);
+                    lock (m_socketListenersList)
 					{
 						m_socketListenersList.Add(socketListener);
 					}
@@ -208,7 +210,7 @@ namespace TCPService
 					// thread.
 					socketListener.StartSocketListener();
 				}
-				catch (SocketException se)
+				catch (SocketException)
 				{
 					m_stopServer = true;
 				}

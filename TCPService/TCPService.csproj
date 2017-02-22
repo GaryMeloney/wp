@@ -90,6 +90,7 @@
     <Compile Include="AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="WpLog.cs" />
     <Compile Include="TCPInstaller.cs">
       <SubType>Component</SubType>
     </Compile>
