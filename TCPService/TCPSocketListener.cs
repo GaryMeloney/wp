@@ -31,7 +31,7 @@ namespace TCPService
 		private long m_totalClientDataSize=0;
 		private StreamWriter m_cfgFile=null;
 		private DateTime m_lastReceiveDateTime;
-		private DateTime m_currentReceiveDateTime;
+		private DateTime m_timeNow;
 		
 		/// <summary>
 		/// Client Socket Listener Constructor.
@@ -76,10 +76,14 @@ namespace TCPService
 			Byte [] byteBuffer = new Byte[1024];
 
 			m_lastReceiveDateTime = DateTime.Now;
-			m_currentReceiveDateTime = DateTime.Now;
+			m_timeNow = DateTime.Now;
 
+            /*
+             * We do not want to kill the connection, ever. Therefore do not start this timer.
+             * 
 			Timer t= new Timer(new TimerCallback(CheckClientCommInterval),
 				null,15000,15000);
+            */
 
 			while (!m_stopClient)
 			{
@@ -87,10 +91,17 @@ namespace TCPService
 				{
 					size = m_clientSocket.Receive(byteBuffer);
                     if (size == 0) break;
-					m_currentReceiveDateTime=DateTime.Now;
-					ParseReceiveBuffer(byteBuffer, size);
-				}
-				catch (SocketException)
+                    m_timeNow = DateTime.Now;
+
+                    string data = Encoding.ASCII.GetString(byteBuffer, 0, size);
+                    WpLog.LogS(data);
+
+                    string testRealtime = string.Format("realtime {0}-{1}-{2}T{3}:{4}:{5} 8", m_timeNow.Year, m_timeNow.Month, m_timeNow.Day, m_timeNow.Hour, m_timeNow.Minute, m_timeNow.Second);
+                    m_clientSocket.Send(Encoding.ASCII.GetBytes(testRealtime));
+
+                    //ParseReceiveBuffer(byteBuffer, size); // The wp way
+                }
+                catch (SocketException)
 				{
 					m_stopClient=true;
 					m_markedForDeletion=true;
@@ -100,8 +111,8 @@ namespace TCPService
 
             m_clientSocket.Close();
 
-            t.Change(Timeout.Infinite, Timeout.Infinite);
-			t=null;
+            //t.Change(Timeout.Infinite, Timeout.Infinite);
+			//t=null;
 		}
 
 		/// <summary>
@@ -277,13 +288,13 @@ namespace TCPService
 		/// <param name="o"></param>
 		private void CheckClientCommInterval(object o)
 		{
-			if (m_lastReceiveDateTime.Equals(m_currentReceiveDateTime))
+			if (m_lastReceiveDateTime.Equals(m_timeNow))
 			{
 				this.StopSocketListener();
 			}
 			else
 			{
-				m_lastReceiveDateTime = m_currentReceiveDateTime;
+				m_lastReceiveDateTime = m_timeNow;
 			}
 		}
 	}

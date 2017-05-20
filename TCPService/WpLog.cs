@@ -41,22 +41,38 @@ namespace TCPService
         public static void LogD(string msg)
         {
             if (!EnableDebug) return;
+            bool useEpoch = false;
 
             lock (Locker)
             {
-                int epoch = (int)(DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalSeconds;
-                m_logDebug.WriteLine(epoch + " " + msg);
+                if (useEpoch)
+                {
+                    int epoch = (int)(DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalSeconds;
+                    m_logDebug.WriteLine(epoch + " " + msg);
+                }
+                else
+                {
+                    m_logDebug.WriteLine(DateTime.Now.ToString(@"yyyy-M-d HH:mm:ss") + " " + msg);
+                }
             }
         }
 
         public static void LogS(string msg)
         {
             if (!EnableSession) return;
+            bool useEpoch = false;
 
             lock (Locker)
             {
-                int epoch = (int)(DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalSeconds;
-                m_logSession.WriteLine(epoch + " " + msg);
+                if (useEpoch)
+                {
+                    int epoch = (int)(DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalSeconds;
+                    m_logSession.WriteLine(epoch + " " + msg);
+                }
+                else
+                {
+                    m_logSession.WriteLine(DateTime.Now.ToString(@"yyyy-M-d HH:mm:ss") + " " + msg);
+                }
             }
         }
     }

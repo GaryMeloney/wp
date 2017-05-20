@@ -4,6 +4,7 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Collections;
 using System.IO;
+using System.Collections.Concurrent;
 
 namespace TCPService
 {
@@ -17,11 +18,11 @@ namespace TCPService
 	/// </summary>
 	public class TCPServer
 	{
-		/// <summary>
-		/// Default Constants.
-		/// </summary>
-		public static IPAddress DEFAULT_SERVER = IPAddress.Parse("127.0.0.1"); 
-		public static int DEFAULT_PORT=31001;
+        /// <summary>
+        /// Default Constants.
+        /// </summary>
+        public static IPAddress DEFAULT_SERVER = IPAddress.Any;
+        public static int DEFAULT_PORT=31001;
 		public static IPEndPoint DEFAULT_IP_END_POINT = 
 			new IPEndPoint(DEFAULT_SERVER, DEFAULT_PORT);
 
@@ -86,7 +87,7 @@ namespace TCPService
 					Directory.CreateDirectory(
 						TCPSocketListener.DEFAULT_FILE_STORE_LOC);
 				}
-			}
+            }
 			catch(Exception)
 			{
 				m_server=null;
@@ -182,7 +183,6 @@ namespace TCPService
 		/// </summary>
 		private void ServerThreadStart()
 		{
-			// Client Socket variable;
 			Socket clientSocket = null;
 			TCPSocketListener socketListener = null;
 			while(!m_stopServer)
@@ -197,17 +197,13 @@ namespace TCPService
 					// Create a SocketListener object for the client.
 					socketListener = new TCPSocketListener(clientSocket);
                     
-                    // Add the socket listener to an array list in a thread 
-                    // safe fashion.
-                    //Monitor.Enter(m_socketListenersList);
+                    // Add the socket listener to an array list in a thread safe fashion.
                     lock (m_socketListenersList)
 					{
 						m_socketListenersList.Add(socketListener);
 					}
-					//Monitor.Exit(m_socketListenersList);
 
-					// Start a communicating with the client in a different
-					// thread.
+					// Start communicating with the client in a different thread.
 					socketListener.StartSocketListener();
 				}
 				catch (SocketException)
