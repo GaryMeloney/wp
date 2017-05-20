@@ -1,8 +1,0 @@
-C:\Users\miked\Documents\GitHub\wp\TCPService\bin\Debug\TCPService.exe
-C:\Users\miked\Documents\GitHub\wp\TCPService\bin\Debug\TCPService.pdb
-C:\Users\miked\Documents\GitHub\wp\TCPService\obj\Debug\TCPService.csprojResolveAssemblyReference.cache
-C:\Users\miked\Documents\GitHub\wp\TCPService\obj\Debug\TCPService.TCPInstaller.resources
-C:\Users\miked\Documents\GitHub\wp\TCPService\obj\Debug\TCPService.TCPService.resources
-C:\Users\miked\Documents\GitHub\wp\TCPService\obj\Debug\TCPService.csproj.GenerateResource.Cache
-C:\Users\miked\Documents\GitHub\wp\TCPService\obj\Debug\TCPService.exe
-C:\Users\miked\Documents\GitHub\wp\TCPService\obj\Debug\TCPService.pdb
