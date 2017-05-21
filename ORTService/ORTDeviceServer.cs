@@ -22,7 +22,7 @@ namespace ORTService
                     // Wait for any client requests and if there is any 
                     // request from any client accept it (Wait indefinitely).
                     clientSocket = m_server.AcceptSocket();
-                    ORTLog.LogS(String.Format("{0}:connection made", clientSocket.RemoteEndPoint));
+                    ORTLog.LogS(String.Format("ORTDevice: connection made {0}", clientSocket.RemoteEndPoint));
 
                     // Create a SocketListener object for the client.
                     socketListener = new DeviceListener(clientSocket);

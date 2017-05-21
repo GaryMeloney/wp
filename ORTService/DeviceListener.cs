@@ -19,27 +19,31 @@ namespace ORTService
             int size = 0;
             Byte[] byteBuffer = new Byte[1024];
 
-            while (!m_stopClient)
+            try
             {
-                try
+                size = m_clientSocket.Receive(byteBuffer);
+                if (size != 0)
                 {
-                    size = m_clientSocket.Receive(byteBuffer);
-                    if (size == 0) break;
-                    DateTime m_timeNow; m_timeNow = DateTime.Now;
-
                     string data = Encoding.ASCII.GetString(byteBuffer, 0, size);
-                    ORTLog.LogS(data);
+                    ORTLog.LogS(String.Format("ORTDevice: Add device listener for device={0}", data));
 
-                    string testRealtime = string.Format("realtime {0}-{1}-{2}T{3}:{4}:{5} 8", m_timeNow.Year, m_timeNow.Month, m_timeNow.Day, m_timeNow.Hour, m_timeNow.Minute, m_timeNow.Second);
-                    m_clientSocket.Send(Encoding.ASCII.GetBytes(testRealtime));
-                }
-                catch (SocketException)
-                {
-                    m_stopClient = true;
-                    m_markedForDeletion = true;
+                    SharedMem.Add(data, m_clientSocket);
+
+                    // Block forever waiting for the connection to terminate
+                    size = m_clientSocket.Receive(byteBuffer);
+
+                    ORTLog.LogS(String.Format("ORTDevice: Remove device listener for device={0}", data));
+                    SharedMem.Remove(data);
                 }
             }
-            ORTLog.LogS(String.Format("{0}:connection dropped by client", m_clientSocket.RemoteEndPoint));
+            catch (SocketException)
+            {
+                ORTLog.LogS("ORTDevice: listener thread exception");
+                m_stopClient = true;
+                m_markedForDeletion = true;
+            }
+
+            ORTLog.LogS(String.Format("ORTDevice: connection dropped by client {0}", m_clientSocket.RemoteEndPoint));
             m_clientSocket.Close();
         }
     }
