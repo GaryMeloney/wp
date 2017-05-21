@@ -3,15 +3,15 @@ using System.Collections.Generic;
 using System.Text;
 using System.IO;
 
-namespace TCPService
+namespace ORTService
 {
-    public static class WpLog
+    public static class ORTLog
     {
         private static readonly object Locker = new object();
         private static StreamWriter m_logDebug;
         private static StreamWriter m_logSession;
-        private const string DEBUG_LOG_FILENAME = "C:\\wp_debug.txt";
-        private const string SESION_LOG_FILENAME = "C:\\wp_session.txt";
+        private const string DEBUG_LOG_FILENAME = "C:\\ort_debug.txt";
+        private const string SESION_LOG_FILENAME = "C:\\ort_session.txt";
 
         public static bool EnableDebug { get; set; } = false;
         public static bool EnableSession { get; set; } = false;
