@@ -43,7 +43,14 @@ namespace ORTService
 
         public static Socket Get(string deviceID)
         {
-            return DeviceSockets[deviceID];
+            if (DeviceSockets.ContainsKey(deviceID))
+            {
+                return DeviceSockets[deviceID];
+            }
+            else
+            {
+                return null;
+            }
         }
     }
 }

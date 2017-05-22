@@ -12,6 +12,8 @@
  */
 
 using System.Net;
+using System.Configuration;
+using System.Collections.Specialized;
 
 namespace ORTService
 {
@@ -55,12 +57,23 @@ namespace ORTService
         {
             ORTLog.Open();
 
-            foreach (string s in args)
-            {
-                if (s.Equals("-d")) ORTLog.EnableDebug = true;
-                if (s.Equals("-s")) ORTLog.EnableSession = true;
-            }
+            var appSettings = ConfigurationManager.AppSettings;
 
+            var LogFlags = ConfigurationManager.GetSection("LogFlags") as NameValueCollection;
+            if (LogFlags != null)
+            {
+                if (LogFlags["LogDebug"] != null &&
+                    string.Compare(LogFlags["LogDebug"].ToString(), "1", true) == 0)
+                {
+                    ORTLog.EnableDebug = true;
+                }
+
+                if (LogFlags["LogSession"] != null &&
+                        string.Compare(LogFlags["LogSession"].ToString(), "1", true) == 0)
+                {
+                    ORTLog.EnableSession = true;
+                }
+            }
             m_deviceServer = new ORTDeviceServer(IPAddress.Any, 3333);
             m_deviceServer.StartServer();
 

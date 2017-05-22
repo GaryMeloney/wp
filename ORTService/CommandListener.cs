@@ -44,7 +44,15 @@ namespace ORTService
 
                     // Get the cooresponding socket and send the command
                     Socket s = SharedMem.Get(deviceID);
-                    s.Send(Encoding.ASCII.GetBytes(command));
+
+                    if (s != null)
+                    {
+                        s.Send(Encoding.ASCII.GetBytes(command));
+                    }
+                    else
+                    {
+                        ORTLog.LogS(string.Format("ORTCommand: deviceID not found: {0}", deviceID));
+                    }
                 }
                 catch (SocketException)
                 {

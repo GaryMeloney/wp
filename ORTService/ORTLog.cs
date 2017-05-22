@@ -10,8 +10,8 @@ namespace ORTService
         private static readonly object Locker = new object();
         private static StreamWriter m_logDebug;
         private static StreamWriter m_logSession;
-        private const string DEBUG_LOG_FILENAME = "C:\\ort_debug.txt";
-        private const string SESION_LOG_FILENAME = "C:\\ort_session.txt";
+        private const string DEBUG_LOG_FILENAME = @"C:\cygwin64\home\listdog\logs\ort_debug.txt";
+        private const string SESION_LOG_FILENAME = @"C:\cygwin64\home\listdog\logs\ort_session.txt";
 
         public static bool EnableDebug { get; set; } = false;
         public static bool EnableSession { get; set; } = false;
