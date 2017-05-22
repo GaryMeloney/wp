@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.IO;
 
 namespace ORTService
@@ -10,18 +8,16 @@ namespace ORTService
         private static readonly object Locker = new object();
         private static StreamWriter m_logDebug;
         private static StreamWriter m_logSession;
-        private const string DEBUG_LOG_FILENAME = @"C:\cygwin64\home\listdog\logs\ort_debug.txt";
-        private const string SESION_LOG_FILENAME = @"C:\cygwin64\home\listdog\logs\ort_session.txt";
 
         public static bool EnableDebug { get; set; } = false;
         public static bool EnableSession { get; set; } = false;
 
-        public static void Open()
+        public static void Open(string debug, string session)
         {
-            m_logDebug = File.Exists(DEBUG_LOG_FILENAME) ? File.AppendText(DEBUG_LOG_FILENAME) : new StreamWriter(DEBUG_LOG_FILENAME);
+            m_logDebug = File.Exists(debug) ? File.AppendText(debug) : new StreamWriter(debug);
             m_logDebug.AutoFlush = true;
 
-            m_logSession = File.Exists(SESION_LOG_FILENAME) ? File.AppendText(SESION_LOG_FILENAME) : new StreamWriter(SESION_LOG_FILENAME);
+            m_logSession = File.Exists(session) ? File.AppendText(session) : new StreamWriter(session);
             m_logSession.AutoFlush = true;
         }
 

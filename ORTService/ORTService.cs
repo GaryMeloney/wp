@@ -55,11 +55,11 @@ namespace ORTService
 
         protected override void OnStart(string[] args)
         {
-            ORTLog.Open();
-
             var appSettings = ConfigurationManager.AppSettings;
-
             var LogFlags = ConfigurationManager.GetSection("LogFlags") as NameValueCollection;
+            string debugFilename = @"C:\cygwin64\home\listdog\logs\ort_debug.txt";
+            string sessionFilename = @"C:\cygwin64\home\listdog\logs\ort_session.txt";
+
             if (LogFlags != null)
             {
                 if (LogFlags["LogDebug"] != null &&
@@ -73,11 +73,40 @@ namespace ORTService
                 {
                     ORTLog.EnableSession = true;
                 }
+
+                if (LogFlags["DebugFilename"] != null)
+                {
+                    debugFilename = LogFlags["DebugFilename"].ToString();
+                }
+
+                if (LogFlags["SessionFilename"] != null)
+                {
+                    debugFilename = LogFlags["DebugFilename"].ToString();
+                }
             }
-            m_deviceServer = new ORTDeviceServer(IPAddress.Any, 3333);
+
+            ORTLog.Open(debugFilename, sessionFilename);
+
+            var TcpFlags = ConfigurationManager.GetSection("LogFlags") as NameValueCollection;
+            int deviceServerPort = 3333;
+            int commandServerPort = 8888;
+            if (TcpFlags != null)
+            {
+                if (TcpFlags["ORTDeviceServerPort"] != null)
+                {
+                    deviceServerPort = int.Parse(TcpFlags["ORTDeviceServerPort"].ToString());
+                }
+
+                if (TcpFlags["ORTCommandServerPort"] != null)
+                {
+                    commandServerPort = int.Parse(TcpFlags["ORTCommandServerPort"].ToString());
+                }
+            }
+
+            m_deviceServer = new ORTDeviceServer(IPAddress.Any, deviceServerPort);
             m_deviceServer.StartServer();
 
-            m_commandServer = new ORTCommandServer(IPAddress.Any, 8888);
+            m_commandServer = new ORTCommandServer(IPAddress.Any, commandServerPort);
             m_commandServer.StartServer();
 
             ORTLog.LogD("Service Started");
