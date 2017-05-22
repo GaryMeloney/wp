@@ -81,7 +81,7 @@ namespace ORTService
 
                 if (LogFlags["SessionFilename"] != null)
                 {
-                    debugFilename = LogFlags["DebugFilename"].ToString();
+                    sessionFilename = LogFlags["SessionFilename"].ToString();
                 }
             }
 
