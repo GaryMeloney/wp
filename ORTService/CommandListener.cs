@@ -33,6 +33,12 @@ namespace ORTService
                     continue;
                 }
 
+                if (size == 0)
+                {
+                    Thread.Sleep(500);
+                    continue;
+                }
+
                 // Get a string representation from the socket buffer
                 string data = Encoding.ASCII.GetString(byteBuffer, 0, size);
 
