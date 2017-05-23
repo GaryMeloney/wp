@@ -33,23 +33,26 @@ namespace ORTService
 
         public void StopSocketListener()
         {
-            if (m_clientSocket != null)
+            if (m_clientSocket == null)
             {
-                m_stopClient = true;
-                m_clientSocket.Close();
-
-                // Wait for one second for the the thread to stop.
-                m_clientListenerThread.Join(1000);
-
-                // If still alive; Get rid of the thread.
-                if (m_clientListenerThread.IsAlive)
-                {
-                    m_clientListenerThread.Abort();
-                }
-                m_clientListenerThread = null;
-                m_clientSocket = null;
-                m_markedForDeletion = true;
+                return;
             }
+
+            // Set flag to tell thread to shutdown
+            m_stopClient = true;
+
+            // Wait for one second for the the thread to stop
+            m_clientListenerThread.Join(1000);
+
+            // If still alive; Get rid of the thread
+            if (m_clientListenerThread.IsAlive)
+            {
+                m_clientListenerThread.Abort();
+            }
+
+            m_clientListenerThread = null;
+            m_clientSocket = null;
+            m_markedForDeletion = true;
         }
 
         public bool IsMarkedForDeletion()

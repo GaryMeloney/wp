@@ -114,14 +114,14 @@ namespace ORTService
 
         protected override void OnStop()
         {
-            ORTLog.LogD("Service Stopped");
-            ORTLog.Close();
-
             m_deviceServer.StopServer();
             m_deviceServer = null;
 
             m_commandServer.StopServer();
             m_commandServer = null;
+
+            ORTLog.LogD("Service Stopped");
+            ORTLog.Close();
         }
     }
 }
