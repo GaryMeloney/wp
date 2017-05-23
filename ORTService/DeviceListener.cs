@@ -24,7 +24,7 @@ namespace ORTService
             SharedMem.Add(data, m_clientSocket);
 
             // Block forever waiting for the connection to terminate
-            m_clientSocket.ReceiveTimeout = 50;
+            m_clientSocket.ReceiveTimeout = 500;
             while (!m_stopClient)
             {
                 try

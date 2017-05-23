@@ -20,7 +20,7 @@ namespace ORTService
             int size = 0;
             Byte[] byteBuffer = new Byte[1024];
 
-            m_clientSocket.ReceiveTimeout = 50;
+            m_clientSocket.ReceiveTimeout = 500;
             while (!m_stopClient)
             {
                 try
