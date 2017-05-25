@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Net.Sockets;
-using System.Threading;
+using System.Text;
 
 namespace ORTService
 {
@@ -29,11 +25,25 @@ namespace ORTService
             {
                 try
                 {
-                    m_clientSocket.Receive(byteBuffer);
+                    size = m_clientSocket.Receive(byteBuffer);
+                    if (size == 0)
+                    {
+                        // Indicates the remote side closed the connection
+                        break;
+                    }
                 }
-                catch (SocketException)
+                catch (SocketException e)
                 {
-                    // Timeout while waiting for shutdown
+                    if (e.ErrorCode == WSAETIMEDOUT)
+                    {
+                        // Timeout while waiting for shutdown
+                        continue;
+                    }
+                    else
+                    {
+                        ORTLog.LogS(string.Format("ORTCommand: SocketException ErrorCode={0}", e.ErrorCode));
+                        break;
+                    }
                 }
             }
 
@@ -44,6 +54,7 @@ namespace ORTService
 
             m_clientSocket.Shutdown(SocketShutdown.Both);
             m_clientSocket.Close();
+            m_markedForDeletion = true;
         }
     }
 }

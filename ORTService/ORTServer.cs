@@ -50,7 +50,7 @@ namespace ORTService
                 m_serverThread.Start();
 
                 // Create a low priority thread that checks and deletes client
-                // SocktConnection objcts that are marked for deletion.
+                // SocktConnection objects that are marked for deletion.
                 m_purgingThread = new Thread(new ThreadStart(PurgingThreadStart));
                 m_purgingThread.Priority = ThreadPriority.Lowest;
                 m_purgingThread.Start();
@@ -99,14 +99,45 @@ namespace ORTService
 
         private void StopAllSocketListers()
         {
-            foreach (TCPSocketListener socketListener in m_socketListenersList)
+            lock (m_socketListenersList)
             {
-                socketListener.StopSocketListener();
+                foreach (TCPSocketListener socketListener in m_socketListenersList)
+                {
+                    socketListener.StopSocketListener();
+                }
             }
 
-            // Remove all elements from the list.
             m_socketListenersList.Clear();
             m_socketListenersList = null;
+        }
+
+        private void CheckForThreadsToPurge()
+        {
+            ArrayList deleteList = new ArrayList();
+
+            // Check for any clients SocketListeners that are to be
+            // deleted and put them in a separate list in a thread safe fashion.
+            lock (m_socketListenersList)
+            {
+                foreach (TCPSocketListener socketListener in m_socketListenersList)
+                {
+                    if (socketListener.IsMarkedForDeletion())
+                    {
+                        ORTLog.LogD(string.Format("PurgingThread: StopSocketListener {0}", socketListener.ToString()));
+                        deleteList.Add(socketListener);
+                        socketListener.StopSocketListener();
+                    }
+                }
+
+                // Delete all the client SocketConnection ojects which are
+                // in marked for deletion and are in the delete list.
+                for (int i = 0; i < deleteList.Count; ++i)
+                {
+                    m_socketListenersList.Remove(deleteList[i]);
+                }
+            }
+
+            deleteList = null;
         }
 
         /// <summary>
@@ -118,35 +149,22 @@ namespace ORTService
         /// </summary>
         private void PurgingThreadStart()
         {
+            ORTLog.LogD("PurgingThread: Start");
+
             while (!m_stopPurging)
             {
-                ArrayList deleteList = new ArrayList();
+                CheckForThreadsToPurge();
 
-                // Check for any clients SocketListeners that are to be
-                // deleted and put them in a separate list in a thread sage
-                // fashon.
-                lock (m_socketListenersList)
+                // Wait 10 seconds, but check for shutdown every 100ms
+                int sleep = 10000;
+                while (!m_stopPurging && sleep > 0)
                 {
-                    foreach (TCPSocketListener socketListener in m_socketListenersList)
-                    {
-                        if (socketListener.IsMarkedForDeletion())
-                        {
-                            deleteList.Add(socketListener);
-                            socketListener.StopSocketListener();
-                        }
-                    }
-
-                    // Delete all the client SocketConnection ojects which are
-                    // in marked for deletion and are in the delete list.
-                    for (int i = 0; i < deleteList.Count; ++i)
-                    {
-                        m_socketListenersList.Remove(deleteList[i]);
-                    }
+                    Thread.Sleep(100);
+                    sleep -= 100;
                 }
-
-                deleteList = null;
-                Thread.Sleep(10000);
             }
+
+            ORTLog.LogD("PurgingThread: Stop");
         }
     }
 }

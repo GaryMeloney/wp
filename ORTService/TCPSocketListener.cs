@@ -9,6 +9,8 @@ namespace ORTService
         protected bool m_stopClient = false;
         protected Thread m_clientListenerThread = null;
         protected bool m_markedForDeletion = false;
+        protected const int WSAETIMEDOUT = 10060;
+        private string m_remoteEndPoint;
 
         public TCPSocketListener(Socket clientSocket)
         {
@@ -28,6 +30,7 @@ namespace ORTService
             {
                 m_clientListenerThread = new Thread(new ThreadStart(SocketListenerThreadStart));
                 m_clientListenerThread.Start();
+                m_remoteEndPoint = m_clientSocket.RemoteEndPoint.ToString();
             }
         }
 
@@ -58,6 +61,11 @@ namespace ORTService
         public bool IsMarkedForDeletion()
         {
             return m_markedForDeletion;
+        }
+
+        public override string ToString()
+        {
+            return m_remoteEndPoint;
         }
     }
 }
