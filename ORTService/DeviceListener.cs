@@ -62,7 +62,7 @@ namespace ORTService
             }
 
             ORTLog.LogS(String.Format("ORTDevice: Remove listener for customer={0} device={1}", customer, device));
-            SharedMem.Remove(data);
+            SharedMem.Remove(key);
 
             ORTLog.LogS(String.Format("ORTDevice: Connection dropped {0}", m_clientSocket.RemoteEndPoint));
 
