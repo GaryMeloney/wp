@@ -31,7 +31,15 @@ namespace ORTService
             string key = GetKey(customer, device);
 
             ORTLog.LogS(String.Format("ORTDevice: Add listener for customer={0} device={1}", customer, device));
-            SharedMem.Add(key, m_clientSocket);
+            if (!SharedMem.Add(key, m_clientSocket))
+            {
+                ORTLog.LogS(String.Format("ORTDevice: Unable to add key={0}", key));
+                ORTLog.LogS(String.Format("ORTDevice: Connection dropped {0}", m_clientSocket.RemoteEndPoint));
+                m_clientSocket.Shutdown(SocketShutdown.Both);
+                m_clientSocket.Close();
+                m_markedForDeletion = true;
+                return;
+            }
 
             // Block forever waiting for the connection to terminate
             m_clientSocket.ReceiveTimeout = 500;
