@@ -30,22 +30,22 @@ namespace ORTService
             }
         }
 
-        public static void Add(string deviceId, Socket s)
+        public static void Add(string key, Socket s)
         {
-            DeviceSockets.TryAdd(deviceId, s);
+            DeviceSockets.TryAdd(key, s);
         }
 
-        public static void Remove(string deviceId)
+        public static void Remove(string key)
         {
             Socket s;
-            DeviceSockets.TryRemove(deviceId, out s);
+            DeviceSockets.TryRemove(key, out s);
         }
 
-        public static Socket Get(string deviceID)
+        public static Socket Get(string key)
         {
-            if (DeviceSockets.ContainsKey(deviceID))
+            if (DeviceSockets.ContainsKey(key))
             {
-                return DeviceSockets[deviceID];
+                return DeviceSockets[key];
             }
             else
             {

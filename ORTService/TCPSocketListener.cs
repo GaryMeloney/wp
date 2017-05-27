@@ -67,5 +67,17 @@ namespace ORTService
         {
             return m_remoteEndPoint;
         }
+
+        private const string IPS_TOKEN = "IPS";
+        protected bool IsValidIpsData(string strRceived)
+        {
+            string firstThree = strRceived.Substring(0, 3).ToUpper();
+            return firstThree.CompareTo(IPS_TOKEN) == 0;
+        }
+
+        protected string GetKey(string customer, string device)
+        {
+            return string.Format("{0}.{1}", customer, device);
+        }
     }
 }

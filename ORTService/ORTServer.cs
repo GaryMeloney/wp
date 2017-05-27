@@ -67,20 +67,17 @@ namespace ORTService
                 // (such as m_socketListenersList) are cleared. This might
                 // cause exceptions.
 
-                // Stop the TCP/IP Server.
+                // Stop the TCP/IP Server
                 m_stopServer = true;
                 m_server.Stop();
-
-                // Wait for one second for the the thread to stop.
                 m_serverThread.Join(1000);
-
-                // If still alive; Get rid of the thread.
                 if (m_serverThread.IsAlive)
                 {
                     m_serverThread.Abort();
                 }
                 m_serverThread = null;
 
+                // Stop the purging thread
                 m_stopPurging = true;
                 m_purgingThread.Join(1000);
                 if (m_purgingThread.IsAlive)
@@ -89,10 +86,8 @@ namespace ORTService
                 }
                 m_purgingThread = null;
 
-                // Free Server Object.
                 m_server = null;
 
-                // Stop All clients.
                 StopAllSocketListers();
             }
         }

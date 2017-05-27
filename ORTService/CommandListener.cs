@@ -44,21 +44,28 @@ namespace ORTService
 
                 // Get a string representation from the socket buffer
                 string data = Encoding.ASCII.GetString(byteBuffer, 0, size);
+                if (!IsValidIpsData(data))
+                {
+                    ORTLog.LogS(String.Format("ORTCommand: Invalid data={0}", data));
+                    break;
+                }
 
-                // Parse the device ID
-                string deviceID = data.Split(null)[0];
+                // Parse the customer+device
+                string customer = data.Split(null)[1];
+                string device = data.Split(null)[2];
 
-                // Parse the command
-                int i = data.IndexOf(" ") + 1;
+                // Parse the command - hacky :/
+                int i = data.IndexOf(" ", data.IndexOf(" ", data.IndexOf(" ")+1)+1)+1;
                 string command = data.Substring(i);
 
-                // Remove the line feed
+                // Remove the carriage return and/or line feed
                 command = Regex.Replace(command, @"\r\n?|\n", "");
 
-                ORTLog.LogS(string.Format("ORTCommand: deviceID={0} command={1}", deviceID, command));
+                ORTLog.LogS(string.Format("ORTCommand: customer={0} device={1} command={2}", customer, device, command));
+                string key = GetKey(customer, device);
 
                 // Get the cooresponding socket and send the command
-                Socket s = SharedMem.Get(deviceID);
+                Socket s = SharedMem.Get(key);
 
                 if (s != null)
                 {
@@ -66,7 +73,7 @@ namespace ORTService
                 }
                 else
                 {
-                    ORTLog.LogS(string.Format("ORTCommand: deviceID not found: {0}", deviceID));
+                    ORTLog.LogS(string.Format("ORTCommand: customer device combination not found: {0}", key));
                 }
             }
 
