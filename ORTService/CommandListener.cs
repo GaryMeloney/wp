@@ -33,13 +33,17 @@ namespace ORTService
                     if (e.ErrorCode == WSAETIMEDOUT)
                     {
                         // Timeout while waiting for shutdown
-                        continue;
+                        break;
                     }
                     else
                     {
-                        ORTLog.LogS(string.Format("ORTCommand: SocketException ErrorCode={0}", e.ErrorCode));
+                        ORTLog.LogS(string.Format("ORTCommand Exception {0}", e.ToString()));
                         break;
                     }
+                }
+                catch (Exception e)
+                {
+                    ORTLog.LogS(string.Format("ORTCommand Exception {0}", e.ToString()));
                 }
 
                 // Get a string representation from the socket buffer
@@ -55,7 +59,7 @@ namespace ORTService
                 string device = data.Split(null)[2];
 
                 // Parse the command - hacky :/
-                int i = data.IndexOf(" ", data.IndexOf(" ", data.IndexOf(" ")+1)+1)+1;
+                int i = data.IndexOf(" ", data.IndexOf(" ", data.IndexOf(" ") + 1) + 1) + 1;
                 string command = data.Substring(i);
 
                 // Remove the carriage return and/or line feed
@@ -77,7 +81,7 @@ namespace ORTService
                 }
             }
 
-            ORTLog.LogS(String.Format("ORTCommand: Connection dropped {0}", m_clientSocket.RemoteEndPoint));
+            ORTLog.LogS(String.Format("ORTCommand: Connection dropped {0}", this.ToString()));
 
             m_clientSocket.Shutdown(SocketShutdown.Both);
             m_clientSocket.Close();

@@ -1,3 +1,4 @@
+using System;
 using System.Net.Sockets;
 using System.Threading;
 
@@ -9,8 +10,10 @@ namespace ORTService
         protected bool m_stopClient = false;
         protected Thread m_clientListenerThread = null;
         protected bool m_markedForDeletion = false;
-        protected const int WSAETIMEDOUT = 10060;
         private string m_remoteEndPoint;
+
+        protected const int WSAETIMEDOUT = 10060;
+        private const string IPS_TOKEN = "IPS";
 
         public TCPSocketListener(Socket clientSocket)
         {
@@ -26,12 +29,25 @@ namespace ORTService
 
         public void StartSocketListener()
         {
-            if (m_clientSocket != null)
+            if (m_clientSocket == null)
             {
-                m_clientListenerThread = new Thread(new ThreadStart(SocketListenerThreadStart));
-                m_clientListenerThread.Start();
+                m_markedForDeletion = true;
+                return;
+            }
+
+            try
+            {
                 m_remoteEndPoint = m_clientSocket.RemoteEndPoint.ToString();
             }
+            catch (Exception e)
+            {
+                ORTLog.LogS(string.Format("TCPSocketListener Exception {0}", e.ToString()));
+                m_markedForDeletion = true;
+                return;
+            }
+
+            m_clientListenerThread = new Thread(new ThreadStart(SocketListenerThreadStart));
+            m_clientListenerThread.Start();
         }
 
         public void StopSocketListener()
@@ -68,7 +84,6 @@ namespace ORTService
             return m_remoteEndPoint;
         }
 
-        private const string IPS_TOKEN = "IPS";
         protected bool IsValidIpsData(string strRceived)
         {
             string firstThree = strRceived.Substring(0, 3).ToUpper();

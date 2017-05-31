@@ -19,27 +19,35 @@ namespace ORTService
             {
                 try
                 {
-                    // Wait for any client requests and if there is any 
-                    // request from any client accept it (Wait indefinitely).
                     clientSocket = m_server.AcceptSocket();
-                    ORTLog.LogS(String.Format("ORTCommand: Connection made {0}", clientSocket.RemoteEndPoint));
-
-                    // Create a SocketListener object for the client.
-                    socketListener = new CommandListener(clientSocket);
-
-                    // Add the socket listener to an array list in a thread safe fashion.
-                    lock (m_socketListenersList)
-                    {
-                        m_socketListenersList.Add(socketListener);
-                    }
-
-                    // Start communicating with the client in a different thread.
-                    socketListener.StartSocketListener();
                 }
-                catch (SocketException)
+                catch (Exception)
                 {
-                    m_stopServer = true;
+                    // This happens when we shutdown the servive
+                    continue;
                 }
+
+                try
+                {
+                    ORTLog.LogS(String.Format("ORTCommand: Connection made {0}", clientSocket.RemoteEndPoint));
+                }
+                catch (Exception e)
+                {
+                    ORTLog.LogS(string.Format("ORTCommand Exception {0}", e.ToString()));
+                    continue;
+                }
+
+                // Create a SocketListener object for the client.
+                socketListener = new CommandListener(clientSocket);
+
+                // Add the socket listener to an array list in a thread safe fashion.
+                lock (m_socketListenersList)
+                {
+                    m_socketListenersList.Add(socketListener);
+                }
+
+                // Start communicating with the client in a different thread.
+                socketListener.StartSocketListener();
             }
         }
     }

@@ -13,13 +13,25 @@ namespace ORTService
         protected override void SocketListenerThreadStart()
         {
             Byte[] byteBuffer = new Byte[1024];
-            int size = m_clientSocket.Receive(byteBuffer);
+            int size = 0;
+            try
+            {
+                size = m_clientSocket.Receive(byteBuffer);
+            }
+            catch (Exception e)
+            {
+                ORTLog.LogS(string.Format("ORTDevice Exception {0}", e.ToString()));
+                m_clientSocket.Close();
+                m_markedForDeletion = true;
+                return;
+            }
+
             string data = Encoding.ASCII.GetString(byteBuffer, 0, size);
             if (!IsValidIpsData(data))
             {
                 ORTLog.LogS(String.Format("ORTDevice: Invalid data={0}", data));
-                ORTLog.LogS(String.Format("ORTDevice: Connection dropped {0}", m_clientSocket.RemoteEndPoint));
-                m_clientSocket.Shutdown(SocketShutdown.Both);
+                ORTLog.LogS(String.Format("ORTDevice: Connection dropped {0}", this.ToString()));
+                try { m_clientSocket.Shutdown(SocketShutdown.Both); } catch (Exception) { }
                 m_clientSocket.Close();
                 m_markedForDeletion = true;
                 return;
@@ -34,15 +46,15 @@ namespace ORTService
             if (!SharedMem.Add(key, m_clientSocket))
             {
                 ORTLog.LogS(String.Format("ORTDevice: Unable to add key={0}", key));
-                ORTLog.LogS(String.Format("ORTDevice: Connection dropped {0}", m_clientSocket.RemoteEndPoint));
-                m_clientSocket.Shutdown(SocketShutdown.Both);
+                ORTLog.LogS(String.Format("ORTDevice: Connection dropped {0}", this.ToString()));
+                try { m_clientSocket.Shutdown(SocketShutdown.Both); } catch (Exception) { }
                 m_clientSocket.Close();
                 m_markedForDeletion = true;
                 return;
             }
 
             // Block forever waiting for the connection to terminate
-            m_clientSocket.ReceiveTimeout = 500;
+            try { m_clientSocket.ReceiveTimeout = 500; } catch (Exception) { }
             while (!m_stopClient)
             {
                 try
@@ -63,18 +75,22 @@ namespace ORTService
                     }
                     else
                     {
-                        ORTLog.LogS(string.Format("ORTCommand: SocketException ErrorCode={0}", e.ErrorCode));
+                        ORTLog.LogS(string.Format("ORTDevice Exception {0}", e.ToString()));
                         break;
                     }
+                }
+                catch (Exception e)
+                {
+                    ORTLog.LogS(string.Format("ORTDevice Exception {0}", e.ToString()));
                 }
             }
 
             ORTLog.LogS(String.Format("ORTDevice: Remove listener for customer={0} device={1}", customer, device));
             SharedMem.Remove(key);
 
-            ORTLog.LogS(String.Format("ORTDevice: Connection dropped {0}", m_clientSocket.RemoteEndPoint));
+            ORTLog.LogS(String.Format("ORTDevice: Connection dropped {0}", this.ToString()));
 
-            m_clientSocket.Shutdown(SocketShutdown.Both);
+            try { m_clientSocket.Shutdown(SocketShutdown.Both); } catch (Exception) { }
             m_clientSocket.Close();
             m_markedForDeletion = true;
         }

@@ -14,6 +14,7 @@
 using System.Net;
 using System.Configuration;
 using System.Collections.Specialized;
+using System.Threading;
 
 namespace ORTService
 {
@@ -103,13 +104,13 @@ namespace ORTService
                 }
             }
 
+            ORTLog.LogD("Service Started");
+
             m_deviceServer = new ORTDeviceServer(IPAddress.Any, deviceServerPort);
             m_deviceServer.StartServer();
 
             m_commandServer = new ORTCommandServer(IPAddress.Any, commandServerPort);
             m_commandServer.StartServer();
-
-            ORTLog.LogD("Service Started");
         }
 
         protected override void OnStop()

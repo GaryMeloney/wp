@@ -41,55 +41,47 @@ namespace ORTService
 
         public void StartServer()
         {
-            if (m_server != null)
-            {
-                m_socketListenersList = new ArrayList();
+            if (m_server == null) return;
 
-                m_server.Start();
-                m_serverThread = new Thread(new ThreadStart(ServerThreadStart));
-                m_serverThread.Start();
+            m_socketListenersList = new ArrayList();
 
-                // Create a low priority thread that checks and deletes client
-                // SocktConnection objects that are marked for deletion.
-                m_purgingThread = new Thread(new ThreadStart(PurgingThreadStart));
-                m_purgingThread.Priority = ThreadPriority.Lowest;
-                m_purgingThread.Start();
-            }
+            m_server.Start();
+            m_serverThread = new Thread(new ThreadStart(ServerThreadStart));
+            m_serverThread.Start();
+
+            // Create a low priority thread that checks and deletes client
+            // SocktConnection objects that are marked for deletion.
+            m_purgingThread = new Thread(new ThreadStart(PurgingThreadStart));
+            m_purgingThread.Priority = ThreadPriority.Lowest;
+            m_purgingThread.Start();
         }
 
         public void StopServer()
         {
-            if (m_server != null)
-            {
-                // It is important to Stop the server first before doing
-                // any cleanup. If not so, clients might being added as
-                // server is running, but supporting data structures
-                // (such as m_socketListenersList) are cleared. This might
-                // cause exceptions.
+            if (m_server == null) return;
 
-                // Stop the TCP/IP Server
-                m_stopServer = true;
-                m_server.Stop();
-                m_serverThread.Join(1000);
-                if (m_serverThread.IsAlive)
-                {
-                    m_serverThread.Abort();
-                }
-                m_serverThread = null;
+            // It is important to Stop the server first before doing
+            // any cleanup. If not so, clients might being added as
+            // server is running, but supporting data structures
+            // (such as m_socketListenersList) are cleared. This might
+            // cause exceptions.
 
-                // Stop the purging thread
-                m_stopPurging = true;
-                m_purgingThread.Join(1000);
-                if (m_purgingThread.IsAlive)
-                {
-                    m_purgingThread.Abort();
-                }
-                m_purgingThread = null;
+            // Stop the TCP/IP Server
+            m_stopServer = true;
+            m_server.Stop();
+            m_serverThread.Join(1000);
+            if (m_serverThread.IsAlive) m_serverThread.Abort();
+            m_serverThread = null;
 
-                m_server = null;
+            // Stop the purging thread
+            m_stopPurging = true;
+            m_purgingThread.Join(1000);
+            if (m_purgingThread.IsAlive) m_purgingThread.Abort();
+            m_purgingThread = null;
 
-                StopAllSocketListers();
-            }
+            m_server = null;
+
+            StopAllSocketListers();
         }
 
         private void StopAllSocketListers()
