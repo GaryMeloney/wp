@@ -86,8 +86,9 @@ namespace ORTService
 
         protected bool IsValidIpsData(string strRceived)
         {
-            string firstThree = strRceived.Substring(0, 3).ToUpper();
-            return firstThree.CompareTo(IPS_TOKEN) == 0;
+            if (strRceived.Length < IPS_TOKEN.Length) return false;
+            string token = strRceived.Substring(0, IPS_TOKEN.Length).ToUpper();
+            return token.CompareTo(IPS_TOKEN) == 0;
         }
 
         protected string GetKey(string customer, string device)

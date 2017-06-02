@@ -37,9 +37,24 @@ namespace ORTService
                 return;
             }
 
-            // Parse the customer+device
-            string customer = data.Split(null)[1];
-            string device = data.Split(null)[2];
+            string customer = "";
+            string device = "";
+            try
+            {
+                // Parse the customer+device
+                customer = data.Split(null)[1];
+                device = data.Split(null)[2];
+            }
+            catch (Exception)
+            {
+                ORTLog.LogS(String.Format("ORTDevice: Invalid data={0}", data));
+                ORTLog.LogS(String.Format("ORTDevice: Connection dropped {0}", this.ToString()));
+                try { m_clientSocket.Shutdown(SocketShutdown.Both); } catch (Exception) { }
+                m_clientSocket.Close();
+                m_markedForDeletion = true;
+                return;
+            }
+
             string key = GetKey(customer, device);
 
             ORTLog.LogS(String.Format("ORTDevice: Add listener for customer={0} device={1}", customer, device));
@@ -82,6 +97,7 @@ namespace ORTService
                 catch (Exception e)
                 {
                     ORTLog.LogS(string.Format("ORTDevice Exception {0}", e.ToString()));
+                    break;
                 }
             }
 
