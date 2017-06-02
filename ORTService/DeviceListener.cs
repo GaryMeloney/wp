@@ -82,6 +82,7 @@ namespace ORTService
                 catch (Exception e)
                 {
                     ORTLog.LogS(string.Format("ORTDevice Exception {0}", e.ToString()));
+                    break;
                 }
             }
 

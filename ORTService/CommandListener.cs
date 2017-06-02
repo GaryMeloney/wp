@@ -16,7 +16,7 @@ namespace ORTService
             int size = 0;
             Byte[] byteBuffer = new Byte[1024];
 
-            m_clientSocket.ReceiveTimeout = 500;
+            try { m_clientSocket.ReceiveTimeout = 500; } catch (Exception) { }
             while (!m_stopClient)
             {
                 try
@@ -33,7 +33,7 @@ namespace ORTService
                     if (e.ErrorCode == WSAETIMEDOUT)
                     {
                         // Timeout while waiting for shutdown
-                        break;
+                        continue;
                     }
                     else
                     {
@@ -44,6 +44,7 @@ namespace ORTService
                 catch (Exception e)
                 {
                     ORTLog.LogS(string.Format("ORTCommand Exception {0}", e.ToString()));
+                    break;
                 }
 
                 // Get a string representation from the socket buffer
