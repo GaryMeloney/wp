@@ -55,16 +55,27 @@ namespace ORTService
                     break;
                 }
 
-                // Parse the customer+device
-                string customer = data.Split(null)[1];
-                string device = data.Split(null)[2];
+                string customer = "";
+                string device = "";
+                string command = "";
+                try
+                {
+                    // Parse the customer+device
+                    customer = data.Split(null)[1];
+                    device = data.Split(null)[2];
 
-                // Parse the command - hacky :/
-                int i = data.IndexOf(" ", data.IndexOf(" ", data.IndexOf(" ") + 1) + 1) + 1;
-                string command = data.Substring(i);
+                    // Parse the command - hacky :/
+                    int i = data.IndexOf(" ", data.IndexOf(" ", data.IndexOf(" ") + 1) + 1) + 1;
+                    command = data.Substring(i);
 
-                // Remove the carriage return and/or line feed
-                command = Regex.Replace(command, @"\r\n?|\n", "");
+                    // Remove the carriage return and/or line feed
+                    command = Regex.Replace(command, @"\r\n?|\n", "");
+                }
+                catch (Exception)
+                {
+                    ORTLog.LogS(String.Format("ORTCommand: Invalid data={0}", data));
+                    break;
+                }
 
                 ORTLog.LogS(string.Format("ORTCommand: customer={0} device={1} command={2}", customer, device, command));
                 string key = GetKey(customer, device);
