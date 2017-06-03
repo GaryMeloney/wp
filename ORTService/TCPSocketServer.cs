@@ -6,7 +6,7 @@ using System.Threading;
 
 namespace ORTService
 {
-    public abstract class ORTServer
+    public abstract class TCPSocketServer
     {
         protected TcpListener m_server = null;
         protected bool m_stopServer = false;
@@ -15,12 +15,12 @@ namespace ORTService
         protected Thread m_purgingThread = null;
         protected ArrayList m_socketListenersList = null;
 
-        public ORTServer(IPAddress serverIP, int port)
+        public TCPSocketServer(IPAddress serverIP, int port)
         {
             Init(new IPEndPoint(serverIP, port));
         }
 
-        ~ORTServer()
+        ~TCPSocketServer()
         {
             StopServer();
         }

@@ -4,9 +4,9 @@ using System.Net.Sockets;
 
 namespace ORTService
 {
-    public class ORTCommandServer : ORTServer
+    public class CommandServer : TCPSocketServer
     {
-        public ORTCommandServer(IPAddress serverIP, int port) : base(serverIP, port)
+        public CommandServer(IPAddress serverIP, int port) : base(serverIP, port)
         {
 
         }

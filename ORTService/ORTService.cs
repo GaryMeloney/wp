@@ -11,18 +11,17 @@
  * 
  */
 
-using System.Net;
-using System.Configuration;
 using System.Collections.Specialized;
-using System.Threading;
+using System.Configuration;
+using System.Net;
 
 namespace ORTService
 {
     public class ORTService : System.ServiceProcess.ServiceBase
     {
         private System.ComponentModel.Container components = null;
-        private ORTDeviceServer m_deviceServer = null;
-        private ORTCommandServer m_commandServer = null;
+        private DeviceServer m_deviceServer = null;
+        private CommandServer m_commandServer = null;
 
         public ORTService()
         {
@@ -106,10 +105,10 @@ namespace ORTService
 
             ORTLog.LogD("Service Started");
 
-            m_deviceServer = new ORTDeviceServer(IPAddress.Any, deviceServerPort);
+            m_deviceServer = new DeviceServer(IPAddress.Any, deviceServerPort);
             m_deviceServer.StartServer();
 
-            m_commandServer = new ORTCommandServer(IPAddress.Any, commandServerPort);
+            m_commandServer = new CommandServer(IPAddress.Any, commandServerPort);
             m_commandServer.StartServer();
         }
 

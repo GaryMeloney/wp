@@ -111,13 +111,13 @@
     </Compile>
     <Compile Include="CommandListener.cs" />
     <Compile Include="DeviceListener.cs" />
-    <Compile Include="ORTCommandServer.cs" />
-    <Compile Include="ORTDeviceServer.cs" />
+    <Compile Include="CommandServer.cs" />
+    <Compile Include="DeviceServer.cs" />
     <Compile Include="ORTLog.cs" />
     <Compile Include="ORTInstaller.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="ORTServer.cs">
+    <Compile Include="TCPSocketServer.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="ORTService.cs">
