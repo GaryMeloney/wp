@@ -10,6 +10,11 @@ namespace ORTService
         {
         }
 
+        public int Send(byte[] buffer)
+        {
+            return m_clientSocket.Send(buffer);
+        }
+
         protected override void SocketListenerThreadStart()
         {
             Byte[] byteBuffer = new Byte[1024];
@@ -57,8 +62,17 @@ namespace ORTService
 
             string key = GetKey(customer, device);
 
+            // Check if this key already exists
+            DeviceListener d = SharedMem.Get(key);
+            if (d != null)
+            {
+                // Remove existing key
+                ORTLog.LogS(String.Format("ORTDevice: Detected duplicate customer={0} device={1}", customer, device));
+                d.StopSocketListener();
+            }
+
             ORTLog.LogS(String.Format("ORTDevice: Add listener for customer={0} device={1}", customer, device));
-            if (!SharedMem.Add(key, m_clientSocket))
+            if (!SharedMem.Add(key, this))
             {
                 ORTLog.LogS(String.Format("ORTDevice: Unable to add key={0}", key));
                 ORTLog.LogS(String.Format("ORTDevice: Connection dropped {0}", this.ToString()));

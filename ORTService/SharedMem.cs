@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Net.Sockets;
 
 namespace ORTService
 {
@@ -13,28 +12,28 @@ namespace ORTService
     public sealed class SharedMem
     {
         private static object syncRoot = new Object();
-        private static volatile ConcurrentDictionary<string, Socket> mDeviceSockets;
+        private static volatile ConcurrentDictionary<string, DeviceListener> mDeviceListeners;
 
-        private static ConcurrentDictionary<string, Socket> DeviceSockets {
+        private static ConcurrentDictionary<string, DeviceListener> DeviceListeners {
             get {
-                if (mDeviceSockets == null)
+                if (mDeviceListeners == null)
                 {
                     lock (syncRoot)
                     {
-                        if (mDeviceSockets == null)
-                            mDeviceSockets = new ConcurrentDictionary<string, Socket>();
+                        if (mDeviceListeners == null)
+                            mDeviceListeners = new ConcurrentDictionary<string, DeviceListener>();
                     }
                 }
 
-                return mDeviceSockets;
+                return mDeviceListeners;
             }
         }
 
-        public static bool Add(string key, Socket s)
+        public static bool Add(string key, DeviceListener s)
         {
             try
             {
-                return DeviceSockets.TryAdd(key, s);
+                return DeviceListeners.TryAdd(key, s);
             }
             catch (Exception)
             {
@@ -44,10 +43,10 @@ namespace ORTService
 
         public static bool Remove(string key)
         {
-            Socket s;
+            DeviceListener s;
             try
             {
-                return DeviceSockets.TryRemove(key, out s);
+                return DeviceListeners.TryRemove(key, out s);
             }
             catch (Exception)
             {
@@ -55,11 +54,11 @@ namespace ORTService
             }
         }
 
-        public static Socket Get(string key)
+        public static DeviceListener Get(string key)
         {
-            if (DeviceSockets.ContainsKey(key))
+            if (DeviceListeners.ContainsKey(key))
             {
-                return DeviceSockets[key];
+                return DeviceListeners[key];
             }
             else
             {

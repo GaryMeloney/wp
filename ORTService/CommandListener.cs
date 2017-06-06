@@ -81,11 +81,17 @@ namespace ORTService
                 string key = GetKey(customer, device);
 
                 // Get the cooresponding socket and send the command
-                Socket s = SharedMem.Get(key);
-
-                if (s != null)
+                DeviceListener d = SharedMem.Get(key);
+                if (d != null)
                 {
-                    s.Send(Encoding.ASCII.GetBytes(command));
+                    try
+                    {
+                        d.Send(Encoding.ASCII.GetBytes(command));
+                    }
+                    catch (Exception e)
+                    {
+                        ORTLog.LogS(string.Format("ORTCommand Exception {0}", e.ToString()));
+                    }
                 }
                 else
                 {
