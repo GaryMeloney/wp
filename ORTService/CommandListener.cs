@@ -101,7 +101,7 @@ namespace ORTService
 
             ORTLog.LogS(String.Format("ORTCommand: Connection dropped {0}", this.ToString()));
 
-            m_clientSocket.Shutdown(SocketShutdown.Both);
+            try { m_clientSocket.Shutdown(SocketShutdown.Both); } catch (Exception) { }
             m_clientSocket.Close();
             m_markedForDeletion = true;
         }
