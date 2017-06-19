@@ -12,7 +12,18 @@ namespace ORTService
 
         public int Send(byte[] buffer)
         {
-            return m_clientSocket.Send(buffer);
+            int ret = 0;
+
+            try
+            {
+                ret = m_clientSocket.Send(buffer);
+            }
+            catch (Exception e)
+            {
+                ORTLog.LogS(string.Format("ORTDevice Exception in Send {0}", e.ToString()));
+            }
+
+            return ret;
         }
 
         protected override void SocketListenerThreadStart()
@@ -25,7 +36,7 @@ namespace ORTService
             }
             catch (Exception e)
             {
-                ORTLog.LogS(string.Format("ORTDevice Exception {0}", e.ToString()));
+                ORTLog.LogS(string.Format("ORTDevice Exception in Receive {0}", e.ToString()));
                 m_clientSocket.Close();
                 m_markedForDeletion = true;
                 return;
@@ -66,8 +77,14 @@ namespace ORTService
             DeviceListener d = SharedMem.Get(key);
             if (d != null)
             {
-                // Remove existing key
+                // Detected duplicate
                 ORTLog.LogS(String.Format("ORTDevice: Detected duplicate customer={0} device={1}", customer, device));
+
+                // Remove existing key
+                ORTLog.LogS(String.Format("ORTDevice: Remove listener for customer={0} device={1}", customer, device));
+                SharedMem.Remove(key);
+
+                // Shutdown the existing (zombie) listener
                 d.StopSocketListener();
             }
 
@@ -83,40 +100,30 @@ namespace ORTService
             }
 
             // Block forever waiting for the connection to terminate
-            try { m_clientSocket.ReceiveTimeout = 500; } catch (Exception) { }
             while (!m_stopClient)
             {
+                bool poll = false;
                 try
                 {
-                    size = m_clientSocket.Receive(byteBuffer);
-                    if (size == 0)
-                    {
-                        // Indicates the remote side closed the connection
-                        break;
-                    }
-                }
-                catch (SocketException e)
-                {
-                    if (e.ErrorCode == WSAETIMEDOUT)
-                    {
-                        // Timeout while waiting for shutdown
-                        continue;
-                    }
-                    else
-                    {
-                        ORTLog.LogS(string.Format("ORTDevice Exception {0}", e.ToString()));
-                        break;
-                    }
+                    poll = m_clientSocket.Poll(100000, SelectMode.SelectRead); // 100ms
                 }
                 catch (Exception e)
                 {
-                    ORTLog.LogS(string.Format("ORTDevice Exception {0}", e.ToString()));
+                    ORTLog.LogS(string.Format("ORTDevice Exception in Poll {0}", e.ToString()));
+                    break;
+                }
+
+                if (poll)
+                {
+                    // Connection has been closed, reset, or terminated
                     break;
                 }
             }
 
-            ORTLog.LogS(String.Format("ORTDevice: Remove listener for customer={0} device={1}", customer, device));
-            SharedMem.Remove(key);
+            if (SharedMem.Remove(key))
+            {
+                ORTLog.LogS(String.Format("ORTDevice: Removed listener for customer={0} device={1}", customer, device));
+            }
 
             ORTLog.LogS(String.Format("ORTDevice: Connection dropped {0}", this.ToString()));
 

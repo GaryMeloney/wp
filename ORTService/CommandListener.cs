@@ -37,13 +37,13 @@ namespace ORTService
                     }
                     else
                     {
-                        ORTLog.LogS(string.Format("ORTCommand Exception {0}", e.ToString()));
+                        ORTLog.LogS(string.Format("ORTCommand Exception in Receive {0}", e.ToString()));
                         break;
                     }
                 }
                 catch (Exception e)
                 {
-                    ORTLog.LogS(string.Format("ORTCommand Exception {0}", e.ToString()));
+                    ORTLog.LogS(string.Format("ORTCommand Exception in Receive {0}", e.ToString()));
                     break;
                 }
 
@@ -86,11 +86,12 @@ namespace ORTService
                 {
                     try
                     {
-                        d.Send(Encoding.ASCII.GetBytes(command));
+                        if (d.Send(Encoding.ASCII.GetBytes(command)) == 0) break;
                     }
                     catch (Exception e)
                     {
                         ORTLog.LogS(string.Format("ORTCommand Exception {0}", e.ToString()));
+                        break;
                     }
                 }
                 else

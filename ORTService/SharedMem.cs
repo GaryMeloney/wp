@@ -35,8 +35,9 @@ namespace ORTService
             {
                 return DeviceListeners.TryAdd(key, s);
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                ORTLog.LogS(string.Format("SharedMem Exception in Add {0}", e.ToString()));
                 return false;
             }
         }
@@ -48,8 +49,9 @@ namespace ORTService
             {
                 return DeviceListeners.TryRemove(key, out s);
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                ORTLog.LogS(string.Format("SharedMem Exception in Remove {0}", e.ToString()));
                 return false;
             }
         }
