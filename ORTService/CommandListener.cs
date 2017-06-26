@@ -51,7 +51,7 @@ namespace ORTService
                 string data = Encoding.ASCII.GetString(byteBuffer, 0, size);
                 if (!IsValidIpsData(data))
                 {
-                    ORTLog.LogS(String.Format("ORTCommand: Invalid data={0}", data));
+                    ORTLog.LogS(String.Format("ORTCommand: Invalid data={0}", CleanString(data)));
                     break;
                 }
 
@@ -73,7 +73,7 @@ namespace ORTService
                 }
                 catch (Exception)
                 {
-                    ORTLog.LogS(String.Format("ORTCommand: Invalid data={0}", data));
+                    ORTLog.LogS(String.Format("ORTCommand: Invalid data={0}", CleanString(data)));
                     break;
                 }
 

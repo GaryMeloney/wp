@@ -45,7 +45,7 @@ namespace ORTService
             string data = Encoding.ASCII.GetString(byteBuffer, 0, size);
             if (!IsValidIpsData(data))
             {
-                ORTLog.LogS(String.Format("ORTDevice: Invalid data={0}", data));
+                ORTLog.LogS(String.Format("ORTDevice: Invalid data={0}", CleanString(data)));
                 ORTLog.LogS(String.Format("ORTDevice: Connection dropped {0}", this.ToString()));
                 try { m_clientSocket.Shutdown(SocketShutdown.Both); } catch (Exception) { }
                 m_clientSocket.Close();
@@ -55,15 +55,17 @@ namespace ORTService
 
             string customer = "";
             string device = "";
+            string ipAddr = "";
             try
             {
                 // Parse the customer+device
                 customer = data.Split(null)[1];
                 device = data.Split(null)[2];
+                ipAddr = data.Split(null)[3];
             }
             catch (Exception)
             {
-                ORTLog.LogS(String.Format("ORTDevice: Invalid data={0}", data));
+                ORTLog.LogS(String.Format("ORTDevice: Invalid data={0}", CleanString(data)));
                 ORTLog.LogS(String.Format("ORTDevice: Connection dropped {0}", this.ToString()));
                 try { m_clientSocket.Shutdown(SocketShutdown.Both); } catch (Exception) { }
                 m_clientSocket.Close();
@@ -88,7 +90,7 @@ namespace ORTService
                 d.StopSocketListener();
             }
 
-            ORTLog.LogS(String.Format("ORTDevice: Add listener for customer={0} device={1}", customer, device));
+            ORTLog.LogS(String.Format("ORTDevice: Add listener for customer={0} device={1} localIpAddr={2}", customer, device, ipAddr));
             if (!SharedMem.Add(key, this))
             {
                 ORTLog.LogS(String.Format("ORTDevice: Unable to add key={0}", key));

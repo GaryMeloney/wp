@@ -1,5 +1,6 @@
 using System;
 using System.Net.Sockets;
+using System.Text;
 using System.Threading;
 
 namespace ORTService
@@ -94,6 +95,27 @@ namespace ORTService
         protected string GetKey(string customer, string device)
         {
             return string.Format("{0}.{1}", customer, device);
+        }
+
+        // Remove non-printable characters from given string; this is useful for logfiles
+        // Symbols are also removed such as: currency symbols, number forms, subscripts and superscripts, 
+        // mathematical operators and arrows, geometric symbols, technical symbols, braille patterns, and dingbats.
+        static public string CleanString(string s)
+        {
+            if (s != null && s.Length > 0)
+            {
+                StringBuilder sb = new StringBuilder(s.Length);
+                foreach (char c in s)
+                {
+                    if (Char.IsSymbol(c))
+                    {
+                        continue;
+                    }
+                    sb.Append(Char.IsLetterOrDigit(c) ? c : ' ');
+                }
+                s = sb.ToString();
+            }
+            return s;
         }
     }
 }
