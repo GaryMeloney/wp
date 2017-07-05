@@ -53,7 +53,7 @@ namespace ORTService
 
         public void StopSocketListener()
         {
-            if (m_clientSocket == null)
+            if (m_clientSocket == null || m_clientListenerThread == null)
             {
                 return;
             }
@@ -64,7 +64,7 @@ namespace ORTService
             // Wait for one second for the the thread to stop
             m_clientListenerThread.Join(1000);
 
-            // If still alive; Get rid of the thread
+            // If still alive, abort the thread
             if (m_clientListenerThread.IsAlive)
             {
                 m_clientListenerThread.Abort();
