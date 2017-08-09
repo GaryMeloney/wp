@@ -1,0 +1,140 @@
+<!-- web client interface by GT -->
+<html>
+<head>
+  <script type="text/javascript">
+    var pathCurrentlyDisplayed;
+
+    var marqueeTextCurrentlyDisplayed;
+    var marqueeTextToDisplay;
+
+    var contentFrame;
+    var marqueeElement;
+
+    function runOnLoad() {
+      contentFrame = document.getElementById('contentFrame');
+      marqueeDiv = document.getElementById('marqueeDiv');
+      marqueeElement = document.getElementById('myMarquee');
+      setInterval(timerHandler, 1000);
+    }
+
+    function timerHandler() {
+      var xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 200) {
+          var obj = JSON.parse(this.responseText);
+
+          manageContent(obj["Content"]);
+          manageOverlay(obj["Overlay"]);
+        }
+      };
+
+      xhttp.open("GET", "http://127.0.0.1:8080", true);
+      xhttp.send();
+    }
+
+    /* manages the displayed content */
+    function manageContent(pathToContent) {
+      if (pathToContent != pathCurrentlyDisplayed) {
+        pathCurrentlyDisplayed = pathToContent;
+        contentFrame.src = pathToContent;
+      }
+    }
+
+    /* manages the overlay text, position, speed, and color */
+    function manageOverlay(overlayJSON) {
+      if (overlayJSON != null) {
+        marqueeTextToDisplay = overlayJSON["text"];
+      }
+      else {
+        marqueeTextToDisplay = "";
+      }
+
+      if (marqueeTextToDisplay != marqueeTextCurrentlyDisplayed) {
+        marqueeTextCurrentlyDisplayed = marqueeTextToDisplay;
+        deleteMarquee();
+
+        if (marqueeTextToDisplay != undefined && marqueeTextToDisplay.length > 0) {
+          createMarquee(marqueeTextToDisplay, overlayJSON["position"],
+                        overlayJSON["font-color"], overlayJSON["font-size"], overlayJSON["speed"]);
+        }
+      }
+    }
+
+    /* creates a new marquee in the DOM */
+    function createMarquee(text, pixFromTop, textColor, textSize, scrollSpeed) {
+      var myMarquee = document.createElement('marquee');
+      myMarquee.setAttribute("scrolltruespeed", "true");
+      myMarquee.setAttribute("id", "myMarquee");
+      myMarquee.setAttribute("behavior", "scroll");
+      myMarquee.setAttribute("direction", "left");
+
+      myMarquee.innerHTML = text;
+
+      marqueeDiv.style.top = pixFromTop + "px";
+      myMarquee.style.color = textColor;
+      myMarquee.style.fontSize = textSize;
+
+
+      scrollSpeed = scrollSpeed.toUpperCase();
+
+      if (scrollSpeed == "SLOW") {
+        myMarquee.setAttribute("scrollAmount", "10");
+      }
+      else if (scrollSpeed == "FAST") {
+        myMarquee.setAttribute("scrollAmount", "30");
+      }
+      else {
+        /* default to medium */
+        myMarquee.setAttribute("scrollAmount", "20");
+      }
+
+      myMarquee.start();
+      marqueeDiv.appendChild(myMarquee);
+
+      marqueeElement = myMarquee;
+    }
+
+    /* removes the marquee from the DOM */
+    function deleteMarquee() {
+      if (marqueeDiv.hasChildNodes())
+        marqueeDiv.removeChild(marqueeDiv.childNodes[0]);
+    }
+
+  </script>
+
+  <style type="text/css">
+    body {
+      overflow: hidden;
+      overflow-y: hidden;
+      overflow-x: hidden;
+      background-color: #000000;
+      margin: 0px;
+    }
+
+    iframe {
+      overflow: hidden;
+      overflow-y: hidden;
+      overflow-x: hidden;
+    }
+
+    #marqueediv {
+      position: absolute;
+      width: 100%;
+      display: block;
+      height: 150px;
+      top: 45px;
+    }
+
+    #myMarquee {
+      font-size: 100px;
+      color: #0000FF;
+    }
+  </style>
+</head>
+<body onload="runOnLoad();">
+  <iframe id="contentFrame" scrolling="no" frameborder="0" src=""
+	  onload="this.width=screen.width;this.height=screen.height;"></iframe>
+
+  <div id="marqueeDiv"></div>
+</body>
+</html>

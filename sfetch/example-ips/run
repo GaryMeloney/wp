@@ -1,0 +1,3 @@
+#!/bin/sh
+
+setuidgid pi envdir env python sfetch.py --wait 20
